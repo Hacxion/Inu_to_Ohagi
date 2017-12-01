@@ -49,6 +49,7 @@ Temporary Items
 
 Library
 Temp
+Builds
 *.pidb
 *.unityproj
 *.sln
