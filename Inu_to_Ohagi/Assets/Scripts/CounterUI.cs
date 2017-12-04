@@ -4,20 +4,18 @@ using UnityEngine.UI;
 
 public class CounterUI : MonoBehaviour {
 
-	[SerializeField] int firstNum;
-	[SerializeField] int min;
-	[SerializeField] int max;
+	[SerializeField] int firstNum=0;
+	[SerializeField] int min=0;
+	[SerializeField] int max=0;
 	private int num;
-	[SerializeField] Text numberText;
-	[SerializeField] Button downButton;
-	[SerializeField] Button upButton;
+	[SerializeField] Text numberText=null;
+	[SerializeField] Button downButton=null;
+	[SerializeField] Button upButton=null;
 	private int preNum;
 
 	// Use this for initialization
 	void Start () {
-		num = firstNum;
-		preNum = firstNum;
-		CounterUpdate ();
+		Reset ();
 	}
 
 	void Update(){
@@ -41,8 +39,10 @@ public class CounterUI : MonoBehaviour {
 		this.num = num;
 	}
 
-	public void ReSetNum(){
-		this.num = firstNum;
+	public void Reset(){
+		num = firstNum;
+		preNum = firstNum;
+		CounterUpdate ();
 	}
 
 	public void CounterUpdate(){
