@@ -48,14 +48,24 @@
      <Compile Include="Assets\Demigiant\DOTween\Examples\Basics.cs" />
      <Compile Include="Assets\Demigiant\DOTween\Examples\Sequences.cs" />
      <Compile Include="Assets\Scripts\CallAndBye.cs" />
+     <Compile Include="Assets\Scripts\CardData.cs" />
      <Compile Include="Assets\Scripts\ChoiceUI.cs" />
      <Compile Include="Assets\Scripts\CounterUI.cs" />
      <Compile Include="Assets\Scripts\InuOhaDatas.cs" />
+     <Compile Include="Assets\Scripts\OutPutInuOhaDatas.cs" />
+     <Compile Include="Assets\Scripts\PlayerNode.cs" />
+     <Compile Include="Assets\Scripts\QuitButton.cs" />
      <Compile Include="Assets\Scripts\RectTransformSummoner.cs" />
+     <Compile Include="Assets\Scripts\Setting\CardNode.cs" />
+     <Compile Include="Assets\Scripts\Setting\CardSetting.cs" />
      <Compile Include="Assets\Scripts\Setting\NameNode.cs" />
+     <Compile Include="Assets\Scripts\Setting\PlayerSetting.cs" />
+     <Compile Include="Assets\Scripts\Setting\SettingSystem.cs" />
      <Compile Include="Assets\Scripts\Singleton.cs" />
      <Compile Include="Assets\Scripts\Title\TitleSystem.cs" />
      <None Include="Assets\Demigiant\DOTween\readme.txt" />
+     <None Include="Assets\OutsideData\ファンタジー編.txt" />
+     <None Include="Assets\OutsideData\日常編.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>G:/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
