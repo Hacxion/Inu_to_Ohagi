@@ -15,6 +15,8 @@ public class CardData : MonoBehaviour {
 
 		DebugContents ();
 	}
+
+
 	public bool AddCardsFromTitle(string title){
 		StreamReader sr = new StreamReader (Application.dataPath + "/OutsideData/" + title + ".txt");
 		string line;
@@ -41,9 +43,6 @@ public class CardData : MonoBehaviour {
 				continue;
 			items.Add (line);
 		}
-
-
-
 		return true;
 
 	}

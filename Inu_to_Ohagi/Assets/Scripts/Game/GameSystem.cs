@@ -9,13 +9,29 @@ public class GameSystem : MonoBehaviour {
 	[SerializeField] Text systemText = null;
 	[SerializeField] Text roundText = null;
 	[SerializeField] Text playerText = null;
-	public Card testCard = null;
+	[SerializeField] Card pinchCard = null;
+	[SerializeField] Card numCard = null;
+	Vector3 pinchCardPoint,numCardPoint;
+	[SerializeField] Card[] itemCards = new Card[3];
+	Vector3[] itemCardPints = new Vector3[3];
+
 	public enum Step{standby,think,answer,vote,end};
 	Step step;
 	float timesum;
+
 	int maxRound,round;
 	int order;
-	string justPlayerName;
+
+	List<string> playerNames,useCards;
+	InuOhaDatas.RoundSetting roundSetting;
+	List<PlayerData> playerDatas;
+	List<string> allPinchs,pinchDeck,pinchGrave;
+	List<string> allItems,itemDeck,itemGrave;
+
+	/*ピンチカードとナンバーカードの内容*/
+	string pinch;
+	int useNum;
+
 
 	/* デバッグ用初期データ入力群*/
 	public bool isUseDebugData = false;
@@ -25,20 +41,18 @@ public class GameSystem : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		InputInuOhaData ();
+		
+		if(isUseDebugData) InputInuOhaData ();
+		LoadInuOhaData ();
+		Initialize ();
 		StandbyHead ();
 		timesum = 0f;
-	
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		if (Input.GetKey("escape"))
 			Application.Quit();
-
-		if (!testCard.GetisMoving()) {
-			testCard.Move (new Vector3(800,300,0),new Vector3(0,300,0), 1.0f);
-		}
 
 		switch (step) {
 		case Step.standby:
@@ -58,6 +72,8 @@ public class GameSystem : MonoBehaviour {
 			break;
 		}
 
+		UpDataUIText ();
+
 			
 	}
 
@@ -66,8 +82,10 @@ public class GameSystem : MonoBehaviour {
 	 * システムテキスト更新
 	 */
 	public void StandbyHead(){
+		timesum = 0f;
 		step = Step.standby;
-		systemText.text =  "プレイヤー1さんの手番です";
+		systemText.text =  playerDatas[order].GetName() + "さんの手番です";
+		SetPinchNunberItemCard ();
 	}
 
 
@@ -77,8 +95,7 @@ public class GameSystem : MonoBehaviour {
 	 */
 	public void Standby(){
 		timesum += Time.deltaTime;
-		if (timesum >= 3.0f) {
-			timesum = 0f;
+		if (timesum >= 4.0f) {
 			ThinkHead ();
 		}
 	}
@@ -89,6 +106,7 @@ public class GameSystem : MonoBehaviour {
 	 * アイテム欄を稼動状態に
 	 */
 	public void ThinkHead(){
+		timesum = 0f;
 		step = Step.think;
 	}
 
@@ -99,9 +117,8 @@ public class GameSystem : MonoBehaviour {
 	 */
 	public void Think(){
 		timesum += Time.deltaTime;
-		systemText.text = "プレイヤー1さん構想中　" + (int)timesum + "秒";
-		if (timesum >= 5.0f) {
-			timesum = 0f;
+		systemText.text = playerDatas[order].GetName() + "さん構想中　" + (int)timesum + "秒";
+		if (timesum >= 2.0f) {
 			AnswerHead ();
 		}
 
@@ -114,6 +131,7 @@ public class GameSystem : MonoBehaviour {
 	 * 録音開始
 	 */
 	public void AnswerHead(){
+		timesum = 0f;
 		step = Step.answer;
 	}
 
@@ -123,9 +141,8 @@ public class GameSystem : MonoBehaviour {
 	 */
 	public void Answer(){
 		timesum += Time.deltaTime;
-		systemText.text = "プレイヤー1さん解答中　" + (int)timesum + "秒";
-		if (timesum >= 5.0f) {
-			timesum = 0f;
+		systemText.text = playerDatas[order].GetName() + "さん解答中　" + (int)timesum + "秒";
+		if (timesum >= 2.0f) {
 			VoteHead ();
 		}
 
@@ -136,6 +153,7 @@ public class GameSystem : MonoBehaviour {
 	 * 投票画面リセットしてどーん
 	 */
 	public void VoteHead(){
+		timesum = 0f;
 		step = Step.vote;
 		systemText.text = "投票中・・・";
 	}
@@ -146,8 +164,7 @@ public class GameSystem : MonoBehaviour {
 	 */
 	public void Vote(){
 		timesum += Time.deltaTime;
-		if (timesum >= 3.0f) {
-			timesum = 0f;
+		if (timesum >= 1.0f) {
 			EndHead ();
 		}
 	}
@@ -156,8 +173,9 @@ public class GameSystem : MonoBehaviour {
 	 * 合否アニメーション
 	 */
 	public void EndHead(){
+		timesum = 0f;
 		step = Step.end;
-		systemText.text = "結果はOK!プレイヤー１さんは1Pt獲得します";
+		systemText.text = "結果はOK!" + playerDatas[order].GetName() + "さんは1Pt獲得します";
 	}
 
 	/*
@@ -168,13 +186,23 @@ public class GameSystem : MonoBehaviour {
 	 * アニメーションが終わったら次の手番へ。　次の手番がなければラウンド数を増加させて先頭へ。次がなければゲーム終了フェイズへ
 	 */public void End(){
 		timesum += Time.deltaTime;
-		if(timesum>=2.0f){
+		if( 1f <= timesum && timesum <= 11f){
 			systemText.text = "アイテムカードを補充します";
+			timesum += 1000f;
 		}
-		if (timesum >= 4.0f) {
-			timesum = 0f;
-			StandbyHead ();
+		if (1002f <= timesum && timesum <= 1012f) {
+			TrashPinchNumItemCard();
+			timesum += 1000f;
 		}
+		if(2004f <= timesum){
+			order ++;
+			if(order>= playerDatas.Count){
+				order = 0;
+				round ++;
+			}
+			StandbyHead();
+		}
+			
 	}
 
 	/*
@@ -185,9 +213,229 @@ public class GameSystem : MonoBehaviour {
 		InuOhaDatas.useCards = dd_titles;
 		InuOhaDatas.roundSetting = dd_round;
 	}
+
+
 	/*
+	 * ＵＩ画面のラウンド数とプレイヤー数を更新する
+	 */
 	void UpDataUIText(){
 		string temp;
-		if(InuOhaDatas.
-*/
+		if (InuOhaDatas.roundSetting == InuOhaDatas.RoundSetting.Rondom)
+			temp = "?";
+		else if (InuOhaDatas.roundSetting == InuOhaDatas.RoundSetting.flee)
+			temp = "∞";
+		else
+			temp = "" + maxRound;
+
+		roundText.text = round + "/" + temp;
+
+		playerText.text = playerDatas [order].GetName ();
+	}
+
+
+	/*
+	 *InuOhaDatasからデータ読み出し
+	 */
+	void LoadInuOhaData(){
+		playerNames = InuOhaDatas.playerNames;
+		useCards = InuOhaDatas.useCards;
+		roundSetting = InuOhaDatas.roundSetting;
+	}
+
+	void Initialize(){
+		switch (roundSetting) {
+		case InuOhaDatas.RoundSetting.thlee:
+			maxRound = 3;
+			break;
+		case InuOhaDatas.RoundSetting.five:
+			maxRound = 5;
+			break;
+		case InuOhaDatas.RoundSetting.Rondom:
+			maxRound = Random.Range(2, 7);
+			break;
+		case InuOhaDatas.RoundSetting.flee:
+			maxRound = 100000000;
+			break;
+		}
+		round = 1;
+		order = 0;
+	
+		playerDatas = new List<PlayerData> ();
+		foreach (string s in playerNames) {
+			PlayerData pd = new PlayerData ();
+			pd.Initialize (s);
+			playerDatas.Add (pd);
+		}
+			
+
+		allPinchs = new List<string> ();
+		allItems = new List<string> ();
+		foreach (string s in useCards) {
+			if (!AddCardsFromTitle (s)) 
+				Debug.Log ("LoadCardError");
+		}
+		DebugContents ();
+		pinchDeck = new List<string> (allPinchs);
+		pinchGrave = new List<string> ();
+		itemDeck = new List<string> (allItems);
+		itemGrave = new List<string> ();
+
+		//フィールド上のカードの座標取得
+		pinchCardPoint = pinchCard.gameObject.GetComponent<RectTransform> ().position;
+		numCardPoint = numCard.gameObject.GetComponent<RectTransform> ().position;
+		for(int i=0;i<3;i++){
+			itemCardPints[i] = itemCards[i].gameObject.GetComponent<RectTransform> ().position;
+		}
+			
+	}
+
+	public bool AddCardsFromTitle(string title){
+		StreamReader sr = new StreamReader (Application.dataPath + "/OutsideData/" + title + ".txt");
+		string line;
+
+		/*-Pinch-探し*/
+		for(;;){
+			if(sr.EndOfStream == true) return false;
+			line = sr.ReadLine();
+			if (line == "-Pinch-") break;
+		}
+		/*-Item-が見つかるまでピンチを格納*/
+		for(;;){
+			if(sr.EndOfStream == true) return false;
+			line = sr.ReadLine();
+			if (line == string.Empty) continue;
+			if(line == "-Item-") break;
+			allPinchs.Add(line);
+		}
+
+		/*残りの行をアイテムに格納*/
+		while (sr.EndOfStream != true) {
+			line = sr.ReadLine ();
+			if (line == string.Empty)
+				continue;
+			allItems.Add (line);
+		}
+		return true;
+	}
+
+	public void DebugContents(){
+		string debugLine = "Pinchs;";
+		foreach (string s in allPinchs) {
+			debugLine += s + " ";
+		}
+		debugLine += "\nItems:";
+		foreach (string s in allItems) {
+			debugLine += s + " ";
+		}
+		Debug.Log (debugLine);
+	}
+
+
+	/*
+	 * ピンチカードとナンバーカード、アイテムカードをセットします
+	 */
+	void SetPinchNunberItemCard(){
+		//もしラウンド1ならアイテムをデッキからカードを選び、プレイヤーにもたせます。
+		string[] items = playerDatas [order].GetItems ();
+		bool[] isUsed = playerDatas [order].GetIsUsed ();
+		if (round == 1) {
+			for (int i = 0; i < 3; i++) {
+				string drawItem = DrawItemCard ();
+				items [i] = drawItem;
+				isUsed [i] = false;
+			}
+		}
+		//アイテムカードを表示上のカードに書き換えます。
+		for (int i = 0; i < 3; i++) {
+			itemCards [i].SetText (items [i]);
+		}
+		//次にナンバーカードとピンチカードを引き、表示上のカードを書き換えます。
+		pinch = DrawPinchCard ();
+		pinchCard.SetText (pinch);
+		useNum = DrawNumCard ();
+		numCard.SetText ("" + useNum);
+
+		//表示上のカードのアニメーションをセットします
+		Vector3 start;
+		for(int i=0;i<3;i++){
+			start = itemCardPints [i];
+			start.x += 400 * i + 800;
+			itemCards [i].Move (start, itemCardPints [i], 0.5f * i + 1f);
+		}
+		start = pinchCardPoint;
+		start.x += 3200;
+		pinchCard.Move (start, pinchCardPoint, 4f);
+		start = numCardPoint;
+		start.x += 3200;
+		numCard.Move (start, numCardPoint, 4f);
+	}
+
+
+
+	/*
+	 * ピンチカードを１枚引き、それを返します。
+	 * 引くだけなので変数には代入されません。
+	 */
+	string DrawPinchCard(){
+		//もしピンチデッキが空なら墓地をデッキに移し変えます
+		if (pinchDeck.Count == 0) {
+			pinchDeck = new List<string> (pinchGrave);
+			pinchGrave.Clear ();
+		}
+		//ピンチデッキからランダムに１枚引きます。　引いたカードはデッキから外されます。　ここでは墓地には行きません。
+		int pick = Random.Range(0, pinchDeck.Count);
+		string draw = pinchDeck[pick];
+		pinchDeck.RemoveAt (pick);
+		return draw;
+	}
+
+	/*
+	 * ナンバーカードを１枚引き、それを返します。
+	 * 引くだけなので以下略
+	 */
+	int DrawNumCard(){
+		return Random.Range (1, 4);
+	}
+
+	/*
+	 * アイテムカードを１枚引き、それを渡します
+	 * 引くだけ略
+	 */
+	string DrawItemCard(){
+		//デッキにも墓地にもアイテムがない場合はもう１セットアイテムカードをデッキに追加します
+		if(itemDeck.Count == 0 && itemGrave.Count == 0){
+			itemDeck = new List<string> (allItems);
+		}
+		//デッキだけがない場合は墓地をデッキに移し変えます
+		else if(itemDeck.Count == 0){
+			pinchDeck = new List<string> (pinchGrave);
+			pinchGrave.Clear ();
+		}
+
+		//アイテムデッキからランダムに１枚引きます。　引いたカードはデッキから外されます。　ここでは墓地には行きません。
+		int pick = Random.Range(0, itemDeck.Count);
+		string draw = itemDeck[pick];
+		itemDeck.RemoveAt (pick);
+		return draw;
+	}
+
+			
+				
+
+	void TrashPinchNumItemCard(){
+		Vector3 goal = pinchCardPoint;
+		goal.x -= 800;
+		pinchCard.Move (goal, 1.0f);
+		goal = numCardPoint;
+		goal.x -= 800;
+		numCard.Move (goal, 1.0f);
+		for (int i = 0; i < 3; i++) {
+			goal = itemCardPints [i];
+			goal.x -= 800;
+			itemCards [i].Move (goal, 1.0f);
+		}
+
+		pinchGrave.Add (pinchCard.GetText());
+	}
+
 }

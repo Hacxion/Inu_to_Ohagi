@@ -50,10 +50,12 @@
      <Compile Include="Assets\Scripts\CallAndBye.cs" />
      <Compile Include="Assets\Scripts\Card.cs" />
      <Compile Include="Assets\Scripts\CardData.cs" />
+     <Compile Include="Assets\Scripts\CardDataLoader.cs" />
      <Compile Include="Assets\Scripts\CardsInGame.cs" />
      <Compile Include="Assets\Scripts\ChoiceUI.cs" />
      <Compile Include="Assets\Scripts\CounterUI.cs" />
      <Compile Include="Assets\Scripts\Game\GameSystem.cs" />
+     <Compile Include="Assets\Scripts\Game\PlayerData.cs" />
      <Compile Include="Assets\Scripts\InuOhaDatas.cs" />
      <Compile Include="Assets\Scripts\OutPutInuOhaDatas.cs" />
      <Compile Include="Assets\Scripts\PlayerNode.cs" />

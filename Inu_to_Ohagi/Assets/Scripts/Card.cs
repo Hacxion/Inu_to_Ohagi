@@ -3,10 +3,12 @@ using UnityEngine.UI;
 using System.Collections;
 
 public class Card : MonoBehaviour {
-	[SerializeField] Text text;
+	[SerializeField] Text text = null;
 	RectTransform rect;
 	Vector3 start,goal;
 	float moveTime,remainTime;
+	bool nowIsMoving = false;
+	bool preIsMoving = false;
 
 	void Awake(){
 		
@@ -19,19 +21,23 @@ public class Card : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		remainTime = 0f;
-		rect = this.GetComponent<RectTransform> ();
 
+		rect = this.GetComponent<RectTransform> ();
 	}
 
 	// Update is called once per frame
 	void Update () {
+		
 		Moving ();
+		preIsMoving = nowIsMoving;
+		nowIsMoving = GetisMoving ();
 	}
 
 	/*
 	 * カードをgoalにtimeかけて動かす。初期位置や終了お知らせポインタを指定可能
 	 */
 	public void Move(Vector3 goal, float time){
+		
 		start = rect.position;
 		this.goal = goal;
 		this.moveTime = remainTime =  time;
@@ -65,6 +71,23 @@ public class Card : MonoBehaviour {
 		else
 			return false;
 	}
-		
+
+	public string GetText(){
+		return text.text;
+	}
+
+	public void SetText(string text){
+		this.text.text = text;
+	}
+
+	/*
+	 * 以前の呼び出しから止まったかどうか
+	 */
+	public bool CheckStop(){
+		if(preIsMoving && !nowIsMoving){
+			return true;
+		}
+		return false;
+	}
 
 }
