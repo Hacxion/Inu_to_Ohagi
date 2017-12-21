@@ -14,20 +14,35 @@ public class CardSetting : MonoBehaviour {
 	}
 
 	public void Initialize(){
-		DirectoryInfo dir = new DirectoryInfo(Application.dataPath + "/OutsideData");
+		DirectoryInfo dir = new DirectoryInfo(InuOhaDatas.GetOutSideDataFolderPass() +  "/CardDatas");
 		FileInfo[] info = dir.GetFiles("*.txt");
-		for(int i=0;i<info.Length;i++){
-			GenerateNewNode (Path.GetFileNameWithoutExtension(info [i].Name));
+		if (info.Length == 0) {
+			return;
 		}
-		cardNodeList [0].SetIsOn (true);
+		for(int i=0;i<info.Length;i++){
+			CardData cardData = new CardData ();
+			if (cardData.LoadFromFile (info[i].Name)) {
+				GenerateNewNode (cardData);
+			}
+		}
+		if (InuOhaDatas.firstPlay)
+			cardNodeList [0].SetIsOn (true);
+		else {
+			foreach (CardData cd in InuOhaDatas.useCards) {
+				foreach (CardNode cn in cardNodeList) {
+					if (cd.GetFileName () == cn.GetCardData ().GetFileName ())
+						cn.SetIsOn (true);
+				}
+			}
+		}
 	}
 
 
-	public void GenerateNewNode(string title){
+	public void GenerateNewNode(CardData cardData){
 		GameObject newNode = Instantiate (nodeObj);
 		newNode.transform.SetParent (content.transform);
 		CardNode newCardNode = newNode.GetComponent<CardNode> ();
-		newCardNode.Initialize(title);
+		newCardNode.Initialize(cardData);
 		cardNodeList.Add (newCardNode);
 	}
 
@@ -39,5 +54,16 @@ public class CardSetting : MonoBehaviour {
 		}
 		return useCardTitles;
 	}
+
+	public List<CardData> GetUseCardDatas(){
+		List<CardData> useCardDatas = new List<CardData> ();
+		foreach (CardNode cn in cardNodeList) {
+			if (cn.GetIsOn() == true)
+				useCardDatas.Add (cn.GetCardData ());
+		}
+		return useCardDatas;
+	}
+
+
 
 }

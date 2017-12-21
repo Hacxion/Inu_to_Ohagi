@@ -21,6 +21,9 @@ public class SettingSystem : MonoBehaviour {
 		UpdatePlayerNumText ();
 		cardSetting.Initialize ();
 		UpdateUseCardText ();
+		if (!InuOhaDatas.firstPlay) {
+			roundChoice.Choice ((int)InuOhaDatas.roundSetting);
+		}
 	}
 
 	void Update(){
@@ -49,10 +52,11 @@ public class SettingSystem : MonoBehaviour {
 	}
 
 	public void PushStartButton(){
+		InuOhaDatas.firstPlay = false;
 		InuOhaDatas.playerNames = playerSetting.GetPlayerNames ();
-		InuOhaDatas.useCards = cardSetting.GetUseCardTitles ();
+		InuOhaDatas.isDefaultNames = playerSetting.GetIsDefaultNames ();
+		InuOhaDatas.useCards = cardSetting.GetUseCardDatas ();
 		InuOhaDatas.roundSetting = (InuOhaDatas.RoundSetting ) roundChoice.getChoice ();
-		InuOhaDatas.timeSetting = (InuOhaDatas.TimeSetting) timeChoice.getChoice ();
 
 		SceneManager.LoadScene("Game");
 	}

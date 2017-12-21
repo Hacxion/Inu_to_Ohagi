@@ -12,7 +12,7 @@ public class ChoiceUI : MonoBehaviour {
 		Reset ();
 	}
 
-	public void Push(int num){
+	public void Choice(int num){
 		buttons[choice].interactable = true;
 		buttons [num].interactable = false;
 		choice = num;
@@ -22,7 +22,7 @@ public class ChoiceUI : MonoBehaviour {
 	public int getChoice(){
 		return choice;
 	}
-
+		
 	public void Reset(){
 		choice = firstChoice;
 		for (int i = 0; i < buttons.Length; i++) {

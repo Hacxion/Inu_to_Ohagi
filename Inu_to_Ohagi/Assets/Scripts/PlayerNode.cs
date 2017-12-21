@@ -6,7 +6,7 @@ public class PlayerNode: MonoBehaviour {
 	bool isDefault;
 	PlayerSetting playerSetting;
 	[SerializeField] Text numText = null;
-	[SerializeField] Text inputText = null;
+	[SerializeField] InputField inputField = null;
 	[SerializeField] Text placeholder = null;
 	[SerializeField] Button deleteButton = null;
 
@@ -22,16 +22,18 @@ public class PlayerNode: MonoBehaviour {
 	public void Initialize(PlayerSetting playerSetting,int num){
 		this.playerSetting = playerSetting;
 		numText.text = "" + (num);
-		inputText.text = "";
+		inputField.text = "";
 		placeholder.text = "プレイヤー" + (num);
 	}
+
 	/*
 	 * 名前を設定して初期化
 	 */
 	public void Initialize(PlayerSetting playerSetting,int num,string name){
 		this.playerSetting = playerSetting;
 		numText.text = "" + (num);
-		inputText.text = name;
+		inputField.text = name;
+		Debug.Log (name + "/" + inputField.text);
 		placeholder.text = "プレイヤー" + (num);
 	}
 
@@ -46,10 +48,17 @@ public class PlayerNode: MonoBehaviour {
 	}
 
 	public string GetName(){
-		if (inputText.text == string.Empty)
+		if (inputField.text == string.Empty)
 			return placeholder.text;
 		else
 			return 
-				inputText.text;
+				inputField.text;
+	}
+
+	public bool GetIsDefaultName(){
+		if (inputField.text == string.Empty)
+			return true;
+		else
+			return false;
 	}
 }

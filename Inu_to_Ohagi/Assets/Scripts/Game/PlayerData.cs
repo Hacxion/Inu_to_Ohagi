@@ -3,17 +3,17 @@ using System.Collections;
 
 public class PlayerData{
 	string playerName;
-	int point;
 	string[] items = new string[3] ;
 	bool[] isUsed = new bool[3] ;
+	Record record;
 
 	public void Initialize(string name){
 		this.playerName = name;
-		point = 0;
 		for(int i=0;i<3;i++){
 			items[i] = "？";
 			isUsed[i] = true;
 		}
+		record = new Record (playerName);
 	}
 
 
@@ -26,10 +26,11 @@ public class PlayerData{
 	}
 
 	public int GetPoint(){
-		return point;
+		return record.GetPoint ();
 	}
-	public void SetPoint(int point){
-		this.point = point;
+
+	public void AddIsOk(bool isOk){
+		record.AddIsOk (isOk);
 	}
 
 	public string[] GetItems(){
@@ -44,6 +45,10 @@ public class PlayerData{
 	}
 	public void SetIsUsed(bool[] isUsed){
 		this.isUsed = isUsed;
+	}
+
+	public Record GetRecord(){
+		return record;
 	}
 
 }

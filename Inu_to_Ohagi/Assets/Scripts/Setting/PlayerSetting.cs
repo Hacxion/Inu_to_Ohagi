@@ -5,13 +5,24 @@ using UnityEngine.UI;
 
 public class PlayerSetting : MonoBehaviour {
 
-
+	void Start(){
+	}
 	public void Initialize(){
-		Clear ();
+		if (InuOhaDatas.firstPlay)
+			Clear ();
+		else {
+			for (int i = 0; i < InuOhaDatas.playerNames.Count; i++) {
+				if (InuOhaDatas.isDefaultNames [i])
+					GenerateNewNode ();
+				else
+					GenerateNewNode (InuOhaDatas.playerNames [i]);
+			}
+		}
 	}
 
 	void Update(){
 		playerNumText.text = "" + playerNodeList.Count;
+
 	}
 
 	List<PlayerNode> playerNodeList = new List<PlayerNode>();
@@ -24,6 +35,13 @@ public class PlayerSetting : MonoBehaviour {
 		newNode.transform.SetParent (content.transform);
 		PlayerNode newPlayerNode = newNode.GetComponent<PlayerNode> ();
 		newPlayerNode.Initialize (this,playerNodeList.Count+1);
+		playerNodeList.Add (newPlayerNode);
+	}
+	public void GenerateNewNode(string name){
+		GameObject newNode = Instantiate (nodeObj);
+		newNode.transform.SetParent (content.transform);
+		PlayerNode newPlayerNode = newNode.GetComponent<PlayerNode> ();
+		newPlayerNode.Initialize (this,playerNodeList.Count+1,name);
 		playerNodeList.Add (newPlayerNode);
 	}
 
@@ -50,6 +68,14 @@ public class PlayerSetting : MonoBehaviour {
 			playerNames.Add (pn.GetName());
 		}
 		return playerNames;
+	}
+
+	public List<bool> GetIsDefaultNames(){
+		List<bool> isDefaultNames = new List<bool> ();
+		foreach (PlayerNode pn in playerNodeList) {
+			isDefaultNames.Add (pn.GetIsDefaultName ());
+		}
+		return isDefaultNames;
 	}
 
 }
